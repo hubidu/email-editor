@@ -6,12 +6,12 @@ export default class MyPage extends React.Component {
     static async getInitialProps () {
       const res = await fetch('http://localhost:3000/api/emails')
       const json = await res.json()
-      return { emails: json }
+      return { emails: json.data }
     }
   
     render () {
       return (
-        <div className="pa3 w-100 sans-serif bg-white black-80 helvetica">
+        <div className="vh-100 w-100 sans-serif bg-white black-80 helvetica">
             <Head>
             <link rel="stylesheet" href="https://unpkg.com/tachyons@4.8.0/css/tachyons.min.css"/>
             </Head>

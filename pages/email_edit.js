@@ -1,50 +1,94 @@
 import React from 'react';
 import { render } from 'react-dom'
 
-import Head from 'next/head'
+import Layout from '../components/layout'
 import Link from 'next/link'
 import 'isomorphic-fetch'
 
 import Editor from '../components/editor'
 
+import {status, commit, push} from '../components/services/git-api'
+import { sendEmail } from '../components/services/send-email'
+import { saveEmail } from '../components/services/save-email'
+import { getEmail } from '../components/services/get-email'
 
 export default class EditEmailPage extends React.Component {
     static async getInitialProps ({ query, req }) {
-        const res = await fetch(`http://localhost:3000/api/emails/${query.id}`)
-        const json = await res.json()
-        return { email: json, id: query.id }
+        const email = await getEmail(query.id)
+        return { email, id: query.id }
     }
 
     onChangeSource(changedSource) {
-        console.log('Saving...')
-
-        fetch(`/api/emails/${this.props.id}/save`, {
-            method: "POST",
-            headers:{'content-type': 'application/json'},
-            body: JSON.stringify({
-                emailSource: changedSource
-            })
-        }).then(() => document.getElementById('preview').contentWindow.location.reload())
+        saveEmail(this.props.id, changedSource)
+            .then(() => document.getElementById('preview').contentWindow.location.reload())
     }
-  
+
+    onStatus() {
+        status()
+    }
+
+    onCommit() {
+        commit()
+    }
+
+    onPush() {
+        push()
+    }
+
+    async onSendEmail() {
+        await sendEmail(this.props.id)
+    }
+
     render () {
       return (
-        <div className="vh-100 pa3 w-100 sans-serif bg-white black-80 helvetica">
-            <Head>
-                <link rel="stylesheet" href="https://unpkg.com/tachyons@4.8.0/css/tachyons.min.css"/>
-            </Head>
-            <h3 className="ma0 mv1">
-                <span className="black-20">
-                    Edit email 
-                </span>    
-                &nbsp;
-                {this.props.email.id}
-            </h3>
-            <div className="cf">
-                <div className="fl w-50 bg-near-white tc">
+        <Layout>
+            <div className="absolute top-0 left-0 w-100">
+                <div className="cf">
+                    <h3 className="fl w-50 ma0 mb3 pa2">
+                        <span className="black-20">
+                            Edit email
+                        </span>
+                        &nbsp;
+                        {this.props.email.id}
+                    </h3>
+                    <div className="fl w-50 ma0 mb3 pa2 tr">
+                        <button className="f7 link dim br1 ba ph3 pv2 mr1 dib bg-white black"
+                            onClick={this.onStatus.bind(this)}
+                        >
+                            Status
+                        </button>
+                        <button className="f7 link dim br1 ba ph3 pv2 mr1 dib bg-white black"
+                            title="git commit all changes"
+                            onClick={this.onCommit.bind(this)}
+                        >
+                            Commit
+                        </button>
+                        <button className="f7 link dim br1 ba ph3 pv2 mr1 dib bg-white black"
+                            title="git push all changes"
+                            onClick={this.onPush.bind(this)}
+                        >
+                            Push
+                        </button>
+                        <button className="f7 link dim br1 ba ph3 pv2 mr1 dib bg-white black"
+                            title="send a test mail"
+                            onClick={this.onSendEmail.bind(this)}
+                        >
+                            Send Email
+                        </button>
+                    </div>
+            
+                </div>
+
+            </div>
+            <div className="cf pt5 vh-100">
+                <div className="fl h-100 w-20 bg-near-white tc">
+                    TODO Show/Create/Edit models
+                </div>
+            
+                <div className="fl h-100 w-40 bg-near-white tc">
                     <Editor
                         width="100%"
-                        height="800px"
+                        height="100%"
                         mode="html"
                         theme="monokai"
                         onChange={this.onChangeSource.bind(this)}
@@ -63,10 +107,9 @@ export default class EditEmailPage extends React.Component {
                         }}
                     />                    
                 </div>
-                <div className="fl w-50 bg-light-gray tc">
+                <div className="fl h-100 w-40 bg-light-gray tc">
                     <iframe
-                        style={{height: 800 + 'px'}}
-                        className="w-100 bn"
+                        style={{height: '99%', width: '100%', border: 'none'}}
                         id="preview" 
                         name="preview" 
                         frameBorder="0" 
@@ -75,8 +118,7 @@ export default class EditEmailPage extends React.Component {
                     />
                 </div>
             </div>
-
-        </div>
+        </Layout>
       )
     }
   }

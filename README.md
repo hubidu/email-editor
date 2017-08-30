@@ -1,8 +1,8 @@
 - DONE Show images in email
+- save changes to git
 - Limit preview to 600px max-width
 - Make preview responsive
 - Throttle editor changes (and preview refreshs)
 - select different models
 - edit models
-- save changes to git
 - use a different templating engine (supporting if)
